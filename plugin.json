@@ -2,7 +2,7 @@
   "name": "siyuan-dictionary",
   "author": "Xedryk",
   "url": "https://github.com/mwolfinspace/siyuan-dictionary",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minAppVersion": "2.9.0",
   "backends": ["all"],
   "frontends": ["all"],
