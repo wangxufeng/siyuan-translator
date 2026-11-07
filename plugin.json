@@ -2,7 +2,7 @@
   "name": "siyuan-translator",
   "author": "Xedryk",
   "url": "https://github.com/wangxufeng/siyuan-translator",
-  "version": "2.0.0",
+  "version": "0.1.0",
   "minAppVersion": "2.9.4",
   "backends": ["all"],
   "frontends": ["all"],
