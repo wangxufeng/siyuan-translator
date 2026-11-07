@@ -1,19 +1,78 @@
-# Translate to Vietnamese
+# 中文翻译助手
 
-Right-click any text to translate it to Vietnamese via Google Translate. Works offline with warning.
+思源笔记（SiYuan）插件：**选中任意文字 → 右键 → 译文直接显示在菜单里 → 点击复制到剪贴板。**
 
-## Features
+支持中文 ↔ 英文双向自动识别。默认走微软 Edge 的免费翻译端点（国内可直连），失败自动切换 Google，配置了有道 Key 时再兜底到有道智云。
 
-- Select any text in SiYuan
-- Right-click → "Translate to Vietnamese" in the context menu
-- Translation appears inline in the menu
-- Click the translation opens Google Translate in your browser
-- Works offline: shows connection warning if network is unavailable
+## 功能
 
-## Usage
+- **右键菜单内联译文**：沿用原插件交互，译文直接显示在菜单项上，不用弹窗
+- **自动识别语种**：中文 → 英文，英文 → 中文，中英混排按占比判断
+- **三引擎自动容错**：微软 Edge → Google → 有道智云，前一个失败自动换下一个
+- **长文本分块**：超过 4000 字符按句子边界切块翻译，译文自动拼接
+- **点击即复制**：点击菜单项把译文写进剪贴板
+- **本地缓存**：相同文本在内存中命中缓存，不重复发请求
+- **失败有提示**：翻译失败时菜单项直接显示原因，点击可打开设置
 
-1. Select text in a SiYuan note
-2. Right-click to open the context menu
-3. Click "Translate to Vietnamese"
-4. The translation appears below the menu item
-5. Click the translated text to open it in Google Translate in your browser
+## 使用
+
+1. 在笔记里选中一段文字
+2. 右键 → 菜单里出现「翻译中…」
+3. 译文直接显示在菜单项上
+4. 点击该项 → 译文复制到剪贴板（鼠标悬停可看完整译文）
+
+## 翻译引擎
+
+| 引擎 | 是否需要 Key | 国内可用性 | 说明 |
+| --- | --- | --- | --- |
+| 微软 Edge | 否 | ✅ 推荐 | Edge 浏览器内置翻译端点，2026 年 8 月起改为免鉴权，支持一次传数组批量翻译 |
+| Google | 否 | ⚠️ 不稳定 | 经典 `client=gtx` 免费端点，国内常被限流（429）或超时 |
+| 有道智云 | ✅ | ✅ | 官方 API，术语翻译质量最好；新用户注册实名认证后有 50 元体验金 |
+
+「自动容错」模式下按上表顺序依次尝试，任一成功即返回。
+
+### 关于有道智云（你可能关心的问题）
+
+**有道可以免费试用，但不是永久免费：**
+
+- **网页版**（[fanyi.youdao.com](https://fanyi.youdao.com/)）：免费，单次输入上限约 5000 字符，短时间内高频提交可能弹验证码。它的内部接口 `dict.youdao.com/translate` 已经不能直接用了（实测 404）
+- **开发者 API**（[ai.youdao.com](https://ai.youdao.com/)）：注册 + 实名认证后送 **50 元体验资金，约 100 万字符**（够两万次左右短句翻译）。用完后按量计费，标准文本翻译 **48 元 / 百万字符**，没有永久免费额度
+
+如果你要用有道：在 [ai.youdao.com 控制台](https://ai.youdao.com/) 创建一个应用（平台类型选「API」），拿到 **AppKey** 和 **AppSecret**，填进插件的「翻译设置」里即可。
+
+插件用的是官方 v3 签名（`signType=v3`，SHA-256），Key 只保存在本地 `data/storage/petal/<插件名>/` 下，不会上传到任何第三方。
+
+## 翻译设置
+
+右键菜单里的「翻译设置…」可以调整：
+
+| 配置项 | 取值 | 说明 |
+| --- | --- | --- |
+| 翻译引擎 | 自动容错 / 微软 Edge / Google / 有道智云 | 默认「自动容错」 |
+| 翻译方向 | 自动识别 / 强制英文 / 强制简体中文 | 默认「自动识别」，即中文 ↔ 英文 |
+| 有道 AppKey | 文本 | 选「有道智云」引擎时必填 |
+| 有道 AppSecret | 密码框 | 选「有道智云」引擎时必填 |
+
+## 安装
+
+**方式一：源码目录安装**
+
+把仓库克隆或下载后，把整个目录放到思源的 `data/plugins/` 下（目录名即 `plugin.json` 里的 `name`），重启思源即可。
+
+**方式二：安装包**
+
+下载 `package.zip`，解压到 `data/plugins/` 下对应的目录。
+
+## 开发
+
+```bash
+node test/selftest.js          # 逻辑自测 + 真实调用 Edge / Google 端点
+npm install jsdom --no-save    # UI 冒烟测试需要
+node test/uitest.js            # 菜单注入、设置面板、剪贴板、卸载清理
+```
+
+`selftest.js` 不依赖思源运行时，会用真实网络调用微软 Edge / Google 的免费端点，覆盖语言检测、翻译方向、长文本分块、SHA-256 签名实现和完整翻译流程。`uitest.js` 用 jsdom 模拟运行环境，验证界面交互路径。
+
+## 免责说明
+
+插件调用的都是各厂商的**非官方免费接口**，可能随时变更或失效，也可能触发限流。本插件仅做技术演示，请勿用于高并发场景。
